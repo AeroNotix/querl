@@ -26,7 +26,7 @@ handle_info(_Message, Library) ->
     {noreply, Library}.
 terminate(_Reason, _Library) -> ok.
 
-%% Locks a resource and assigns it to the client
+%% Handle job stack
 handle_call({add, What}, _From, State) ->
     {reply, ok, lists:append(State, [What])};
 handle_call({remove}, _From, State) ->
