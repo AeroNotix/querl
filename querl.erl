@@ -28,7 +28,7 @@ terminate(_Reason, _Library) -> ok.
 
 %% Locks a resource and assigns it to the client
 handle_call({add, What}, _From, State) ->
-    {reply, "done", lists:append(State, [What])};
+    {reply, ok, lists:append(State, [What])};
 handle_call({remove}, _From, State) ->
     [First|Rest] = case length(State) of
                        0 ->
