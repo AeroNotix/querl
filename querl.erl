@@ -42,3 +42,15 @@ add(What) ->
     gen_server:call(?MODULE, {add, What}).
 remove() ->
     gen_server:call(?MODULE, {remove}).
+
+adder(0) ->
+    ok;
+adder(N) ->
+    add(N),
+    adder(N-1).
+
+remover(0) ->
+    ok;
+remover(N) ->
+    remove(),
+    remover(N-1).
