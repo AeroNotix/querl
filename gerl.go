@@ -121,13 +121,11 @@ func (q *Queue) PopOnDiskJobs(j *JobFile) {
 func MonitorQueue(q *Queue) {
 	log.Printf("Monitoring %s\n", q.ondiskfile)
 	for {
-		select {
-		case <-q.timer.C:
-			q.m.Lock()
-			q.SaveToDisk()
-			q.Reset()
-			q.m.Unlock()
-		}
+		<-q.timer.C
+		q.m.Lock()
+		q.SaveToDisk()
+		q.Reset()
+		q.m.Unlock()
 	}
 }
 
