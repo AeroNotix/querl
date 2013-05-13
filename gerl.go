@@ -30,8 +30,9 @@ type JobFile struct {
 type Queue struct {
 	entries    chan *JobEntry
 	j          Jobs
-	m          sync.Mutex // Whole queue mutex
-	t          sync.Mutex // just the timer mutex
+	m          sync.Mutex   // Whole queue mutex
+	t          sync.Mutex   // just the timer mutex
+	rw         sync.RWMutex // For reading and setting fields
 	ondisk     bool
 	ondiskfile string
 	timer      *time.Timer
@@ -67,13 +68,18 @@ func (q *Queue) SaveToDisk() {
 				panic(err)
 			}
 			w.Write(jobfile.Jobs.Serialize())
+			q.rw.Lock()
+			defer q.rw.Unlock()
 			q.ondisk = true
 			return
 		}
 	}
 }
 
+// HasOnDisk returns the ondisk state
 func (q Queue) HasOnDisk() bool {
+	q.rw.RLock()
+	defer q.rw.RUnlock()
 	return q.ondisk
 }
 
