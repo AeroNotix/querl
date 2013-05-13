@@ -50,6 +50,8 @@ func NewQueue(filepath string) *Queue {
 }
 
 // SaveToDisk will write any unused entries to disk
+//
+// This is not thread safe and external locking should be used.
 func (q *Queue) SaveToDisk() {
 	var jobfile JobFile
 	if q.HasOnDisk() {
