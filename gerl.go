@@ -90,6 +90,8 @@ func (q *Queue) PopOnDiskJobs(j *JobFile) {
 	if q.ondiskfile == "" {
 		panic("Queue's job file is inaccessible.")
 	}
+	q.m.Lock()
+	defer q.m.Unlock()
 	b, err := ioutil.ReadFile(q.ondiskfile)
 	if err != nil {
 		log.Println(err)
@@ -98,6 +100,7 @@ func (q *Queue) PopOnDiskJobs(j *JobFile) {
 	err = json.Unmarshal(b, j)
 	if err != nil {
 		log.Println(err)
+		return
 	}
 	q.ondisk = false
 	if err := os.Remove(q.ondiskfile); err != nil {
