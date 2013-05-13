@@ -8,12 +8,13 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"runtime"
+	"os"
 	"sync"
 	"time"
 )
 
-var Queues map[string]Queue
+var TIMEOUTDURATION = time.Duration(10 * time.Second)
+var Queues map[string]*Queue
 
 type JobEntry struct {
 	QueueName string `json:"queue"`
@@ -22,16 +23,101 @@ type JobEntry struct {
 }
 
 type Jobs []*JobEntry
-
-type Queue struct {
-	ondisk  bool
-	m       sync.Mutex
-	j       Jobs
-	entries chan *JobEntry
+type JobFile struct {
+	Jobs Jobs `json:"jobs"`
 }
 
-func NewQueue() Queue {
-	return Queue{entries: make(chan *JobEntry)}
+type Queue struct {
+	entries    chan *JobEntry
+	j          Jobs
+	m          sync.Mutex // Whole queue mutex
+	t          sync.Mutex // just the timer mutex
+	ondisk     bool
+	ondiskfile string
+	timer      *time.Timer
+}
+
+// Initialize a new queue using the filepath as it's disk storage.
+func NewQueue(filepath string) *Queue {
+	q := &Queue{
+		ondiskfile: filepath,
+		entries:    make(chan *JobEntry),
+		timer:      time.NewTimer(TIMEOUTDURATION),
+	}
+	go MonitorQueue(q)
+	return q
+}
+
+// SaveToDisk will write any unused entries to disk
+func (q *Queue) SaveToDisk() {
+	var jobfile JobFile
+	if q.HasOnDisk() {
+		q.PopOnDiskJobs(&jobfile)
+	}
+	for {
+		select {
+		case job := <-q.entries:
+			jobfile.Jobs = append(jobfile.Jobs, job)
+		default:
+			if len(jobfile.Jobs) < 1 {
+				return
+			}
+			w, err := os.OpenFile(q.ondiskfile, os.O_CREATE|os.O_RDWR, 0666)
+			if err != nil {
+				panic(err)
+			}
+			w.Write(jobfile.Jobs.Serialize())
+			q.ondisk = true
+			return
+		}
+	}
+}
+
+func (q Queue) HasOnDisk() bool {
+	return q.ondisk
+}
+
+// Reset the underlying timer. Used when we interact with the queue so
+// we can organize the writes to disk into low-activity periods.
+func (q *Queue) Reset() bool {
+	q.t.Lock()
+	defer q.t.Unlock()
+	return q.timer.Reset(TIMEOUTDURATION)
+}
+
+// Pop off all the on-disk jobs into the supplied JobFile.
+func (q *Queue) PopOnDiskJobs(j *JobFile) {
+	if q.ondiskfile == "" {
+		panic("Queue's job file is inaccessible.")
+	}
+	b, err := ioutil.ReadFile(q.ondiskfile)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	err = json.Unmarshal(b, j)
+	if err != nil {
+		log.Println(err)
+	}
+	q.ondisk = false
+	if err := os.Remove(q.ondiskfile); err != nil {
+		log.Println(err)
+	}
+}
+
+// Monitors a queue for inactivity, if there is inactivity for the
+// specified timeout duration, we write to disk.
+func MonitorQueue(q *Queue) {
+	log.Printf("Monitoring %s\n", q.ondiskfile)
+	for {
+		select {
+		case <-q.timer.C:
+			q.m.Lock()
+			q.SaveToDisk()
+			q.Reset()
+			q.m.Unlock()
+		}
+	}
 }
 
 func (j Jobs) Serialize() []byte {
@@ -63,22 +149,35 @@ func Pop(w http.ResponseWriter, req *http.Request) {
 		writefail(w)
 		return
 	}
-	var jobs Jobs
+
+	// We're interacting with the queue so we'll reset the timer to
+	// show that
+	queue.Reset()
+	var jobfile JobFile
+
+	// Get all the pending jobs from disk
+	if queue.HasOnDisk() {
+		queue.PopOnDiskJobs(&jobfile)
+	}
+
+	// Doing it this way allows other readers to take jobs out the
+	// queue without duplicating our jobs.
 	for {
 		select {
 		case job := <-queue.entries:
-			jobs = append(jobs, job)
+			jobfile.Jobs = append(jobfile.Jobs, job)
 		default:
-			if len(jobs) < 1 {
+			if len(jobfile.Jobs) < 1 {
 				w.WriteHeader(http.StatusNoContent)
 				return
 			}
-			w.Write(jobs.Serialize())
+			w.Write(jobfile.Jobs.Serialize())
 			return
 		}
 	}
 }
 
+// Pushes a new job into the queue.
 func Push(w http.ResponseWriter, req *http.Request) {
 	job, err := readbody(req.Body)
 	if err != nil {
@@ -86,8 +185,9 @@ func Push(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	go func() {
-		if val, ok := Queues[job.QueueName]; ok {
-			val.entries <- job
+		if queue, ok := Queues[job.QueueName]; ok {
+			queue.Reset()
+			queue.entries <- job
 		}
 	}()
 	writesuccess(w)
@@ -117,9 +217,18 @@ func writefail(w http.ResponseWriter) {
 }
 
 func main() {
-	runtime.GOMAXPROCS(runtime.NumCPU())
-	Queues = make(map[string]Queue)
-	Queues["tt"] = NewQueue()
+
+	// Save to disk in the case of horrible failure.
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println(err)
+			for _, queue := range Queues {
+				queue.SaveToDisk()
+			}
+		}
+	}()
+	Queues = make(map[string]*Queue)
+	Queues["tt"] = NewQueue("tt.q")
 	http.HandleFunc("/push/", Push)
 	http.HandleFunc("/pop/", Pop)
 	log.Fatal(http.ListenAndServe(":8080", nil))
