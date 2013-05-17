@@ -226,7 +226,6 @@ func writefail(w http.ResponseWriter) {
 }
 
 func main() {
-
 	// Save to disk in the case of horrible failure.
 	defer func() {
 		if err := recover(); err != nil {
