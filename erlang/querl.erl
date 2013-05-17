@@ -75,6 +75,7 @@ remove(Queue) ->
 rander(0) ->
     ok;
 rander(N) ->
+    random:seed(now()),
     FunList = [
                [fun newqueue/1, "tt"],
                [fun add/2, "sup", "tt"],
