@@ -35,7 +35,7 @@ handle_call({add, What, Queue}, _From, State) ->
                      dict:fetch(Queue, State) ! {push, self(), What},
                      ok;
                  false ->
-                     {error, "Invalid Queue."}
+                     {error, invalid_queue}
              end,
     {reply, Return, State};
 
@@ -43,7 +43,7 @@ handle_call({add, What, Queue}, _From, State) ->
 handle_call({new, Queue}, _From, State) ->
     case dict:is_key(Queue, State) of
         true ->
-            {reply, {error, "Queue Exists."}, State};
+            {reply, {error, queue_already_exists}, State};
         false ->
             {reply, ok, dict:store(Queue, diskqueue:newqueue(Queue), State)}
     end;
@@ -58,10 +58,10 @@ handle_call({remove, Queue}, _From, State) ->
                          {pop, Value} ->
                              Value
                      after 10000 ->
-                             {error, "Timed out."}
+                             {error, timed_out}
                      end;
                  false ->
-                     {error, "Invalid Queue."}
+                     {error, invalid_queue}
              end,
     {reply, Return, State}.
 
