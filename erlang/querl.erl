@@ -26,7 +26,9 @@ handle_info(_Message, Library) ->
     {noreply, Library}.
 terminate(_Reason, _Library) -> ok.
 
-%% Handle job stack
+%% Server handlers.
+%%
+%% new will add a new element into the named queue.
 handle_call({add, What, Queue}, _From, State) ->
     Return = case dict:is_key(Queue, State) of
                  true ->
@@ -36,6 +38,8 @@ handle_call({add, What, Queue}, _From, State) ->
                      {error, "Invalid Queue."}
              end,
     {reply, Return, State};
+
+%% new will create a new queue with the name provided.
 handle_call({new, Queue}, _From, State) ->
     case dict:is_key(Queue, State) of
         true ->
@@ -43,6 +47,9 @@ handle_call({new, Queue}, _From, State) ->
         false ->
             {reply, ok, dict:store(Queue, diskqueue:newqueue(Queue), State)}
     end;
+
+%% remove will pop out all the items in the queue and return them to
+%% the client.
 handle_call({remove, Queue}, _From, State) ->
     Return = case dict:is_key(Queue, State) of
                  true ->
