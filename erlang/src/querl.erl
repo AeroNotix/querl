@@ -25,8 +25,7 @@ start_link() ->
             start_link()
     end.
 
-init(Args) ->
-    io:format("~p~n", [Args]),
+init(_Args) ->
     {ok, dict:new()}.
 
 code_change(_OldVsn, State, _Extra) ->
