@@ -1,0 +1,16 @@
+%% -*- mode: Erlang;-*-
+{application, frontend, 
+ [
+  {description, "Front end application for querl"},
+  {vsn, "1"},
+  {modules, []},
+  {registered, []},
+  {applications, [
+				  kernel,
+				  stdlib,
+d				  cowboy
+				 ]},
+  {mod, {frontend_app, []}},
+  {env, []}
+ ]
+}.
