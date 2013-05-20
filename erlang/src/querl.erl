@@ -92,6 +92,5 @@ rander(N) ->
     rander(N-1).
 
 main() ->
-    start_link(),
     newqueue("tt"),
     rander(100000).
