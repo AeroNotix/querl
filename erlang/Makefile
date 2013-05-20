@@ -1,6 +1,7 @@
 all:
-	rm ebin/*
-	rebar compile
+	rm ebin/*.beam; rebar get-deps compile
 
 run:
-	erl -pa ebin -boot start_sasl -s querl
+	erl -pa ebin \
+	-boot start_sasl \
+	-s querl
