@@ -1,5 +1,5 @@
 -module(fileio).
--compile(export_all).
+-export([save/2, get_stored/1]).
 
 -define(Dir, "/home/aero/").
 

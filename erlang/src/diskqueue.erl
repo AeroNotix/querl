@@ -1,5 +1,10 @@
 -module(diskqueue).
--compile(export_all).
+
+%% API
+-export([newqueue/1]).
+
+%% Callbacks
+-export([monitor/2, timerout/2, queue/2]).
 
 %% newqueue takes a string name and returns a Pid of a process which
 %% will be handling the queueing and dequeing of items passed in.
