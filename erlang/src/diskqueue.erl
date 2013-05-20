@@ -17,10 +17,10 @@ monitor(Pid1, Pid2) ->
     link(Pid1),
     link(Pid2),
     receive
-        {Value, Pid1, Reason} ->
+        {_Value, Pid1, Reason} ->
             io:format("~p~n", [Reason]),
             Pid2 ! quit;
-        {Value, Pid2, Reason} ->
+        {_Value, Pid2, Reason} ->
             io:format("~p~n", [Reason]),
             Pid1 ! quit
     end.

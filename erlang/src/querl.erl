@@ -2,13 +2,19 @@
 -compile(export_all).
 -behaviour(gen_server).
 
+%% API
+-export([start_link/0,start/0]).
+
 %% gen_server behaviour
--export([start/0,code_change/3,
+-export([code_change/3,
          handle_call/3,init/1,
          handle_cast/2,handle_info/2,
          terminate/2]).
 
 start() ->
+    start_link().
+
+start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
 init(Args) ->
@@ -86,6 +92,6 @@ rander(N) ->
     rander(N-1).
 
 main() ->
-    start(),
+    start_link(),
     newqueue("tt"),
     rander(100000).

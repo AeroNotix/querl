@@ -15,7 +15,7 @@ get_stored(File) ->
     Data = case file:open(?Dir ++ File, [read]) of
                {ok, Fd} ->
                    get_from_disk(Fd);
-               {error, Reason} ->
+               {error, _Reason} ->
                    []                   
            end,
     file:delete(?Dir ++ File),
