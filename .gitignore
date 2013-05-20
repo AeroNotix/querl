@@ -1,1 +1,3 @@
 *.beam
+erlang/deps/*
+*.dump
