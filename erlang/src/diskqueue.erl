@@ -58,7 +58,11 @@ queue(Settings, State) ->
         {save, Who} ->
             Who ! ok,
             fileio:save(dict:fetch("file", Settings), State),
-            queue(Settings, [])
+            queue(Settings, []);
+        timetoquit ->
+            io:format("Quitting: ~p~n", [self()]),
+            fileio:save(dict:fetch("file", Settings), State),
+            exit(caught_quit)
     end.
 
 %% Timerout posts to the queue's mailbox when it's time to persist

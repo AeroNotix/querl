@@ -69,7 +69,13 @@ handle_call({remove, Queue}, _From, State) ->
                  false ->
                      {error, invalid_queue}
              end,
-    {reply, Return, State}.
+    {reply, Return, State};
+handle_call({quit}, _From, State) ->
+    dict:map(fun(_QueueName, QueuePid) ->
+                     QueuePid ! timetoquit,
+                     100
+             end, State),
+    {stop, normal, quitting, State}.
 
 newqueue(Queue) ->
     gen_server:call(?MODULE, {new, Queue}).
@@ -77,6 +83,8 @@ add(What, Queue) ->
     gen_server:call(?MODULE, {add, What, Queue}).
 remove(Queue) ->
     gen_server:call(?MODULE, {remove, Queue}).
+quit() ->
+    gen_server:call(?MODULE, {quit}).
 
 rander(0) ->
     ok;
