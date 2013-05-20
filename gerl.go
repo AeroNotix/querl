@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"sync"
 	"time"
 )
@@ -236,6 +237,18 @@ func main() {
 			}
 		}
 	}()
+
+	go func() {
+		sigchan := make(chan os.Signal)
+		signal.Notify(sigchan, os.Interrupt)
+		<-sigchan
+		log.Println("Caught SIGINT, saving state")
+		for _, queue := range Queues {
+			queue.SaveToDisk()
+		}
+		os.Exit(0)
+	}()
+
 	Queues = make(map[string]*Queue)
 	Queues["tt"] = NewQueue("tt.q")
 	http.HandleFunc("/push/", Push)
