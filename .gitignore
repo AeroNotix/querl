@@ -1,3 +1,4 @@
 *.beam
 erlang/deps/*
 *.dump
+erlang/ebin/*
