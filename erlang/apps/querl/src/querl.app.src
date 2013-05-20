@@ -1,3 +1,4 @@
+%% -*- mode: Erlang;-*-
 {application, querl,
  [
   {description, ""},
@@ -9,4 +10,5 @@
                  ]},
   {mod, { querl_app, []}},
   {env, []}
- ]}.
+ ]
+}.
