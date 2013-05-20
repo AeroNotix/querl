@@ -1,7 +1,17 @@
+PATHS = ebin \
+	apps/querl/ebin
+
 all:
-	rm ebin/*.beam; rebar get-deps compile
+	make doit
 
 run:
-	erl -pa ebin \
+	erl -pa $(PATHS) \
 	-boot start_sasl \
-	-s querl
+	-s querl \
+
+deleter:
+	find $(PATHS) -name *.beam -delete
+
+doit:
+	make deleter
+	rm ebin/*.beam; rm ebin/*.app; rebar get-deps compile
