@@ -46,6 +46,7 @@ monitor(Pid1, Pid2) ->
 %%        Save forces all the in-memory items to-disk so they can be
 %%        persisted in the case of failure.
 queue(Settings, State) ->
+    Filename = dict:fetch("file", Settings),
     receive
         quit ->
             ok;
@@ -53,7 +54,7 @@ queue(Settings, State) ->
             Who ! ok,
             queue(Settings, lists:append(State, [Element]));
         {pop, Who} ->
-            Who ! {pop, State ++ fileio:get_stored(dict:fetch("file", Settings))},
+            Who ! {pop, State ++ fileio:get_stored(Filename)},
             queue(Settings, []);
         {save, Who} ->
             Who ! ok,
@@ -61,7 +62,7 @@ queue(Settings, State) ->
             queue(Settings, []);
         timetoquit ->
             io:format("Quitting: ~p~n", [self()]),
-            fileio:save(dict:fetch("file", Settings), State),
+            fileio:save(Filename, State),
             exit(caught_quit)
     end.
 
