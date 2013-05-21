@@ -23,10 +23,10 @@ monitor(Pid1, Pid2) ->
     link(Pid2),
     receive
         {_Value, Pid1, Reason} ->
-            io:format("~p~n", [Reason]),
+            lager:info("~p~n", [Reason]),
             Pid2 ! quit;
         {_Value, Pid2, Reason} ->
-            io:format("~p~n", [Reason]),
+            lager:info("~p~n", [Reason]),
             Pid1 ! quit
     end.
 
@@ -62,19 +62,19 @@ queue(Settings, State) ->
             queue(Settings, []);
         {save, Who} ->
             Who ! ok,
-            io:format("Saving queue: ~p~n", [Filename]),
+            lager:info("Saving queue: ~p~n", [Filename]),
             case fileio:save(Filename, State) of
                 ok ->
                     queue(Settings, []);
                 {error, Reason} ->
-                    io:format("Pid: ~p, ~p~n", [Filename, Reason]),
+                    lager:info("Pid: ~p, ~p~n", [Filename, Reason]),
                     queue(Settings, State)
             end;
         reload ->
-            io:format("Reloading queue: ~p~n", [Filename]),
+            lager:info("Reloading queue: ~p~n", [Filename]),
             ?MODULE:queue(Settings, State);
         timetoquit ->
-            io:format("Quitting: ~p~n", [self()]),
+            lager:info("Quitting: ~p~n", [self()]),
             fileio:save(Filename, State),
             exit(caught_quit)
     end.
@@ -100,4 +100,4 @@ timerout(Pid, [CheckTime, ErrorTime]) ->
 
 %% Helper to log messages.
 logerror(Pid, Message) ->
-    io:format("Pid: ~p ~p", [Pid, Message]).
+    lager:info("Pid: ~p ~p", [Pid, Message]).

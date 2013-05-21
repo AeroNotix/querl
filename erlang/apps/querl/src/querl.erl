@@ -19,9 +19,9 @@ start_link() ->
     process_flag(trap_exit, true),
     receive
         {'EXIT', Pid, normal} ->
-            io:format("Quitting: ~p~n", [Pid]);
+            lager:info("Quitting: ~p~n", [Pid]);
         {'EXIT', Pid, Reason} ->
-            io:format("~p: caught exit: ~p", [Pid, Reason]),
+            lager:info("~p: caught exit: ~p", [Pid, Reason]),
             start_link()
     end.
 

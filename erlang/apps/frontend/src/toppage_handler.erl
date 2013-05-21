@@ -39,7 +39,7 @@ handlePOST(Req) ->
             Decoded = jsx:decode(Data),
             case request_to_record(Decoded) of
                 {error, Reason} ->
-                    io:format("Bad Request: ~p / ~p~n", [Decoded, Reason]),
+                    lager:info("Bad Request: ~p / ~p~n", [Decoded, Reason]),
                     do400(Req2);
                 JobRecord ->
                     push(JobRecord, Req2)
