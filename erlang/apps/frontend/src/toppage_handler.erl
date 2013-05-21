@@ -19,8 +19,15 @@ handle(Req, State) ->
     end,
     {ok, Req2, State}.
 
+baseresp(Number, Message, Req) ->
+    cowboy_req:reply(Number, [], Message, Req).
+
 do404(Req) ->
-    cowboy_req:reply(404, [], <<"Page Not Found\n">>, Req).
+    baseresp(404, <<"Page Not Found\n">>, Req).
+do400(Req) ->
+    baseresp(400, <<"Bad Request\n">>, Req).
+do201(Req) ->
+    baseresp(201, <<>>, Req).
 
 handlePOST(Req) ->
     Body = cowboy_req:body(Req),
