@@ -9,6 +9,7 @@
 init(_Transport, Req, []) ->
     {ok, Req, undefined}.
 
+%% The entry point into our server. Currently can push but cannot pop.
 handle(Req, State) ->
     case cowboy_req:method(Req) of
         {<<"GET">>, _} ->
@@ -21,9 +22,9 @@ handle(Req, State) ->
     end,
     {ok, Req2, State}.
 
+%% Some basic helper methods for certain response types.
 baseresp(Number, Message, Req) ->
     cowboy_req:reply(Number, [], Message, Req).
-
 do404(Req) ->
     baseresp(404, <<"Page Not Found\n">>, Req).
 do400(Req) ->
@@ -51,6 +52,8 @@ handlePOST(Req) ->
 terminate(_Reason, _Req, _State) ->
     ok.
 
+%% Push will call the underlying querl module to put the job into the
+%% queue.
 push(JobRecord, Req) ->
     case querl:add(JobRecord, JobRecord#job.queuename) of
         ok ->
@@ -60,6 +63,9 @@ push(JobRecord, Req) ->
             do400(Req)
     end.
 
+%% Request to record will take a proplist from the request and return
+%% possibly a job record or an error depending on whether the request
+%% was valid.
 request_to_record(Raw) ->
     Queue = proplists:get_value(<<"queue">>, Raw),
     ID = proplists:get_value(<<"id">>, Raw),
