@@ -58,8 +58,14 @@ queue(Settings, State) ->
             queue(Settings, []);
         {save, Who} ->
             Who ! ok,
-            fileio:save(dict:fetch("file", Settings), State),
-            queue(Settings, []);
+            io:format("Saving queue: ~p~n", [Filename]),
+            case fileio:save(Filename, State) of
+                ok ->
+                    queue(Settings, []);
+                {error, Reason} ->
+                    io:format("Pid: ~p, ~p~n", [Filename, Reason]),
+                    queue(Settings, State)
+            end;
         reload ->
             io:format("Reloading queue: ~p~n", [Filename]),
             ?MODULE:queue(Settings, State);
