@@ -77,12 +77,23 @@ handle_call({remove, Queue}, _From, State) ->
                      {error, invalid_queue}
              end,
     {reply, Return, State};
+
+%% Quit will end the whole queue and stop the application.
 handle_call({quit}, _From, State) ->
     dict:map(fun(_QueueName, QueuePid) ->
                      QueuePid ! timetoquit,
                      100
              end, State),
-    {stop, normal, quitting, State}.
+    {stop, normal, quitting, State};
+
+%% Reload will reload all the code modules for each queue and the
+%% queue manager itself.
+handle_call({reload}, _From, State) ->
+    dict:map(fun(_QueueName, QueuePid) ->
+                     QueuePid ! reload,
+                     QueuePid
+             end, State),
+    {reply, ok, State}.
 
 newqueue(Queue) ->
     gen_server:call(?MODULE, {new, Queue}).
@@ -92,6 +103,8 @@ remove(Queue) ->
     gen_server:call(?MODULE, {remove, Queue}).
 quit() ->
     gen_server:call(?MODULE, {quit}).
+reload() ->
+    gen_server:call(?MODULE, {reload}).
 
 rander(0) ->
     ok;

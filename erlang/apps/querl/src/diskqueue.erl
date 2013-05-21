@@ -60,6 +60,9 @@ queue(Settings, State) ->
             Who ! ok,
             fileio:save(dict:fetch("file", Settings), State),
             queue(Settings, []);
+        reload ->
+            io:format("Reloading queue: ~p~n", [Filename]),
+            ?MODULE:queue(Settings, State);
         timetoquit ->
             io:format("Quitting: ~p~n", [self()]),
             fileio:save(Filename, State),
@@ -71,7 +74,9 @@ queue(Settings, State) ->
 timerout(Pid, [CheckTime, ErrorTime]) ->
     receive
         quit ->
-            ok
+            ok;
+        reload ->
+            ?MODULE:timerout(Pid, [CheckTime, ErrorTime])
     after CheckTime ->
             Pid ! {save, self()},
             receive
