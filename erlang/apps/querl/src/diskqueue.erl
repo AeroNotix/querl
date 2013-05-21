@@ -45,6 +45,10 @@ monitor(Pid1, Pid2) ->
 %%   -  save
 %%        Save forces all the in-memory items to-disk so they can be
 %%        persisted in the case of failure.
+%%   - reload
+%%        Reload will start using the new version of the code on-disk.
+%%   - timetoquit
+%%        powers down the queue saving any state to disk.
 queue(Settings, State) ->
     Filename = dict:fetch("file", Settings),
     receive
