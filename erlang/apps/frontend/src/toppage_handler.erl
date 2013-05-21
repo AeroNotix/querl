@@ -37,20 +37,44 @@ handlePOST(Req) ->
             case extract_element("queue", Decoded) of
                 {error, Reason} ->
                     io:format("~p~n", [Reason]),
-                    cowboy_req:reply(404, [], <<"Page Not Found\n">>, Req2);
-                QueueName ->
-                    push(QueueName, Decoded, Req2)
+                    do400(Req2);
+                {<<"queue">>, QueueName} ->
+                    push(QueueName, Decoded, Req2);
+                Else ->
+                    print(Else),
+                    do400(Req2)
             end;
         {error, Reason} ->
             io:format("~p~n", [Reason]),
-            cowboy_req:reply(404, [], <<"Page Not Found\n">>, Req)
+            do404(Req)
     end.
 
 terminate(_Reason, _Req, _State) ->
     ok.
 
 push(QueueName, JSON, Req) ->
-    cowboy_req:reply(200, [], QueueName, Req).
+    case extract_element("payload", JSON) of
+        {error, Reason} ->
+            io:format("~p~n", [Reason]),
+            do400(Req);
+        {<<"payload">>, Payload} ->
+            QueueName2 = case is_binary(QueueName) of
+                            true ->
+                                binary_to_list(QueueName);
+                            false ->
+                                QueueName
+                        end,
+            case querl:add(Payload, QueueName2) of
+                ok ->
+                    do201(Req);
+                Else ->
+                    print([Else, QueueName2]),
+                    do400(Req)
+            end;
+        _Else ->
+            do400(Req)
+    end.
+
 
 extract_element(_Element, []) ->
     {error, not_found};
