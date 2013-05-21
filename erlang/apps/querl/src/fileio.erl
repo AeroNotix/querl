@@ -59,6 +59,3 @@ save_to_disk(Fd, [H|T]) ->
         {error, Reason} ->
             {error, Reason}
     end.
-    
-            
-    
