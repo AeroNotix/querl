@@ -13,6 +13,7 @@ run:
 	-pa $(DEPS) \
 	-pa $(PATHS) \
 	-boot start_sasl \
+	-s lager \
 	-s querl \
 	-s frontend
 
