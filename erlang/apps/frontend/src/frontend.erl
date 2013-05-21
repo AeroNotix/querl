@@ -6,17 +6,17 @@
 %% API.
 
 start() ->
-	ok = application:start(crypto),
-	ok = application:start(ranch),
-	ok = application:start(cowboy),
-	ok = application:start(frontend).
+    ok = application:start(crypto),
+    ok = application:start(ranch),
+    ok = application:start(cowboy),
+    ok = application:start(frontend).
 
 dispatchers() ->
     cowboy_router:compile([
-		{'_', [
-			{"/", toppage_handler, []}
-		]}
-	]).
+        {'_', [
+            {"/", toppage_handler, []}
+        ]}
+    ]).
 
 reload_dispatchers() ->
     cowboy:set_env(http, dispatch,
