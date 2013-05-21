@@ -2,3 +2,4 @@
 erlang/deps/*
 *.dump
 erlang/ebin/*
+erlang/log/*
