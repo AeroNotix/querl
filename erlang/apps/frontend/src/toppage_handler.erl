@@ -62,8 +62,11 @@ extract_element(Element, [H|JSON]) ->
             {E1, Data} = H,
             if
                 Element =:= E1 ->
-                    Data;
+                    {E1, Data};
                 true ->
                     extract_element(Element, JSON)
             end
     end.
+
+print(What) ->
+    io:format("~p~n", [What]).
