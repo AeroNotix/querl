@@ -11,7 +11,8 @@ start(_Type, _Args) ->
 	Dispatch = frontend:dispatchers(),
 	{ok, _} = cowboy:start_http(http, 100, [{port, 8080}], [
 		{env, [{dispatch, Dispatch}]}
-	]).
+	]),
+    frontend_sup:start_link().
 
 stop(_State) ->
 	ok.
