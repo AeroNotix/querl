@@ -3,6 +3,6 @@
               {vsn,"1"},
               {modules,[frontend,frontend_app,toppage_handler]},
               {registered,[]},
-              {applications,[kernel,stdlib,cowboy]},
+              {applications,[kernel,stdlib,cowboy,querl]},
               {mod,{frontend_app,[]}},
               {env,[]}]}.
