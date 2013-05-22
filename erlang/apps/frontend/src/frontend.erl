@@ -14,7 +14,8 @@ start() ->
 dispatchers() ->
     cowboy_router:compile([
         {'_', [
-            {"/push/", push_handler, []}
+            {"/push/", push_handler, []},
+            {"/pop/", pop_handler, []}
         ]}
     ]).
 
