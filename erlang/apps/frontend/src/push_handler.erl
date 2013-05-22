@@ -1,4 +1,4 @@
--module(toppage_handler).
+-module(push_handler).
 
 -export([init/3]).
 -export([handle/2]).
