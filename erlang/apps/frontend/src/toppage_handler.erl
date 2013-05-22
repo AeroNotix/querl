@@ -3,6 +3,7 @@
 -export([init/3]).
 -export([handle/2]).
 -export([terminate/3]).
+-import(genreq, [do404/1, do400/1, do201/1]).
 
 -include("job.hrl").
 
@@ -21,16 +22,6 @@ handle(Req, State) ->
             {ok, Req2} = do404(Req)
     end,
     {ok, Req2, State}.
-
-%% Some basic helper methods for certain response types.
-baseresp(Number, Message, Req) ->
-    cowboy_req:reply(Number, [], Message, Req).
-do404(Req) ->
-    baseresp(404, <<"Page Not Found\n">>, Req).
-do400(Req) ->
-    baseresp(400, <<"Bad Request\n">>, Req).
-do201(Req) ->
-    baseresp(201, <<>>, Req).
 
 handlePOST(Req) ->
     Body = cowboy_req:body(Req),
