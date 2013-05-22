@@ -1,25 +1,21 @@
 PATHS = ebin \
-	apps/querl/ebin \
-	apps/frontend/ebin
+		apps/querl/ebin \
+		apps/frontend/ebin
 
+RELDIR = _rel
+RELNAME = querl
 DEPS = ebin \
-	deps/*/ebin
+	   deps/*/ebin
 
 all:
 	make doit
 
 run:
-	erl \
-	-pa $(DEPS) \
-	-pa $(PATHS) \
-	-boot start_sasl \
-	-s lager \
-	-s querl \
-	-s frontend
+	cd $(RELDIR)/bin/; ./$(RELNAME) console
 
 deleter:
 	find $(PATHS) -name *.beam -delete
 
 doit:
 	make deleter
-	rm ebin/*.beam; rebar get-deps compile
+	rm ebin/*.beam; rebar get-deps compile; relx
