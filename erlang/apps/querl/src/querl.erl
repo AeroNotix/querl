@@ -15,15 +15,7 @@ start() ->
     spawn(?MODULE, start_link, []).
 
 start_link() ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []),
-    process_flag(trap_exit, true),
-    receive
-        {'EXIT', Pid, normal} ->
-            lager:info("Quitting: ~p~n", [Pid]);
-        {'EXIT', Pid, Reason} ->
-            lager:info("~p: caught exit: ~p", [Pid, Reason]),
-            start_link()
-    end.
+    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
 init(_Args) ->
     {ok, dict:new()}.

@@ -10,7 +10,7 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
-    querl:start_link().
+    querl_sup:start_link().
 
 stop(_State) ->
     ok.

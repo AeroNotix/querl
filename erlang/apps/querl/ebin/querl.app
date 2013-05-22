@@ -5,4 +5,4 @@
               {applications,[kernel,stdlib]},
               {mod,{querl_app,[]}},
               {env,[]},
-              {modules,[diskqueue,fileio,querl,querl_app]}]}.
+              {modules,[diskqueue,fileio,querl,querl_app,querl_sup]}]}.
