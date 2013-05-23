@@ -3,7 +3,7 @@
 -include("job.hrl").
 
 %% Web API
--export([do404/1, do400/1, do201/1]).
+-export([do404/1, do400/1, do201/1, do200/1]).
 
 %% Record API
 -export([request_to_record/1, request_to_record_raw/1]).
@@ -15,6 +15,8 @@ do404(Req) ->
     baseresp(404, <<"Page Not Found\n">>, Req).
 do400(Req) ->
     baseresp(400, <<"Bad Request\n">>, Req).
+do200(Req) ->
+    baseresp(200, <<>>, Req).
 do201(Req) ->
     baseresp(201, <<>>, Req).
 
