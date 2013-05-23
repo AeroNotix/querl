@@ -30,11 +30,7 @@ request_to_record(Raw) ->
         false ->
             {error, missing_fields};
         true ->
-            #job{
-          id=ID,
-          queuename=binary_to_list(Queue),
-          entrydate=EntryDate
-         }
+            Rec
     end.
 
 %% Request to record raw will take a raw job request and return it, if
