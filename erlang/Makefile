@@ -13,6 +13,13 @@ all:
 run:
 	cd $(RELDIR)/bin/; ./$(RELNAME) start
 
+stop:
+	cd $(RELDIR)/bin/; ./$(RELNAME) stop
+
+attach:
+	cd $(RELDIR/bin/; ./$(RELNAME) ping
+	cd $(RELDIR)/bin/; ./$(RELNAME) attach
+
 deleter:
 	find $(PATHS) -name *.beam -delete
 
