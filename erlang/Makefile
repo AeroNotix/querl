@@ -11,7 +11,7 @@ all:
 	make doit
 
 run:
-	cd $(RELDIR)/bin/; ./$(RELNAME) console
+	cd $(RELDIR)/bin/; ./$(RELNAME) start
 
 deleter:
 	find $(PATHS) -name *.beam -delete
