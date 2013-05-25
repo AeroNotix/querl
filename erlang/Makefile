@@ -11,7 +11,7 @@ all:
 	make doit
 
 run:
-	cd $(RELDIR)/bin/; ./$(RELNAME) start
+	cd $(RELDIR)/bin/; ./$(RELNAME) console
 
 stop:
 	cd $(RELDIR)/bin/; ./$(RELNAME) stop
