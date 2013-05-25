@@ -17,14 +17,13 @@ init(_Transport, Req, []) ->
 handle(Req, State) ->
     case cowboy_req:method(Req) of
         {<<"POST">>, _} ->
-            {ok, Req2} = handleGET(Req);
-        Else ->
-            io:format("~p~n", [Else]),
-            {ok, Req2} = do200(Req)
+            {ok, Req2} = handlePOST(Req);
+        _Else ->
+            {ok, Req2} = do404(Req)
     end,
     {ok, Req2, State}.
 
-handleGET(Req) ->
+handlePOST(Req) ->
     Body = cowboy_req:body(Req),
     case Body of
         {ok, Data, Req2} ->
