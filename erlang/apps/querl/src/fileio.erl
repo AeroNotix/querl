@@ -1,10 +1,12 @@
 -module(fileio).
 -export([save/2, get_stored/1]).
 
--define(Dir, "/home/aero/").
+dir() ->
+	{ok, Dir} = application:get_env(dir),
+	Dir.
 
 save(File, Jobs) ->
-    case file:open(?Dir ++ File, [write, append]) of
+    case file:open(dir() ++ File, [write, append]) of
         {ok, Fd} ->
             save_to_disk(Fd, Jobs);
         {error, Reason} ->
@@ -12,13 +14,13 @@ save(File, Jobs) ->
     end.
 
 get_stored(File) ->
-    Data = case file:open(?Dir ++ File, [read]) of
+    Data = case file:open(dir() ++ File, [read]) of
                {ok, Fd} ->
                    get_from_disk(Fd);
                {error, _Reason} ->
                    []                   
            end,
-    file:delete(?Dir ++ File),
+    file:delete(dir() ++ File),
     Data.
 
 get_from_disk(Fd) ->
