@@ -27,8 +27,7 @@ handlePOST(Req) ->
     Body = cowboy_req:body(Req),
     case Body of
         {ok, Data, Req2} ->
-            lager:info(Data),
-            do200(Req2);
+			pop(request_to_record_raw(jsx:decode(Data)), Req);
         {error, Reason} ->
             io:format("~p~n", [Reason]),
             do404(Req)
