@@ -15,7 +15,6 @@ init(_Transport, Req, []) ->
     {ok, Req, undefined}.
 
 handle(Req, State) ->
-    lager:info("SUP YO!!@#!@#!@#"),
     case cowboy_req:method(Req) of
         {<<"POST">>, _} ->
             {ok, Req2} = handleGET(Req);
@@ -32,7 +31,6 @@ handleGET(Req) ->
             lager:info(Data),
             do200(Req2);
         {error, Reason} ->
-            lager:info("sup"),
             io:format("~p~n", [Reason]),
             do404(Req)
     end.
