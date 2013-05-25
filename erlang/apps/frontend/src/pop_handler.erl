@@ -34,8 +34,28 @@ handlePOST(Req) ->
     end.
 
 pop(Job, Req) ->
-    io:format("~p~n", [Job]),
-    do200(Req).
+	case Job#job.queuename of
+		undefined ->
+			do404(Req);
+		QueueName ->
+			case querl:remove(QueueName) of
+				{error, Reason} ->
+					JSON = [{<<"error">>, atom_to_binary(Reason, utf8)}],
+					cowboy_req:reply(200, [], jsx:encode(JSON), Req);
+				Data ->
+					cowboy_req:reply(200, [], job_list(Data), Req)
+			end
+	end.
+
+ll2bin(LL) ->
+	ll2bin(LL, []).
+ll2bin([], Rest) ->
+	Rest;
+ll2bin([H|T], Rest) ->
+	ll2bin(T, [Rest|list_to_binary(H)]).
+
+job_list(Jobs) ->
+	jsx:encode([{<<"jobs">>, ll2bin(Jobs)}]).
 
 terminate(_Reason, _Req, _State) ->
     ok.
