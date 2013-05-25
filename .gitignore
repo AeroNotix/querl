@@ -6,3 +6,4 @@ erlang/log/*
 erlang/rel/*
 !erlang/rel/reltool.config
 erlang/_rel
+sys.config
